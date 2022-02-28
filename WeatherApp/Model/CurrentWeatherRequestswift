@@ -1,0 +1,16 @@
+//
+//  CurrentWeatherData.swift
+//  WeatherApp
+//
+//  Created by Андрей Бучевский on 04.02.2022.
+//
+
+import Foundation
+
+class CurrentWeatherRequest {
+    func fetchCurrentWeather() {
+//        let urlString =
+//        let url = URl(String:)
+//        let session
+    }
+}
