@@ -9,13 +9,15 @@ import Foundation
 import CoreLocation
 import UIKit
 
-protocol NetworkWeatherManagerProtocol: AnyObject {
+protocol NetworkServiceProtocol: AnyObject {
     func fetchCurrentWeather(forCity city: String, completion: @escaping (Result<CurrentWeather, Error>) -> Void)
 }
 
-class NetworkWeatherManager: NetworkWeatherManagerProtocol {
+class NetworkService: NetworkServiceProtocol {
+    static let shared = NetworkService()
+    private init() {}
 //MARK: - Public methods
-    func fetchCurrentWeather(forCity city: String, completion: @escaping (Result<CurrentWeather, Error>) -> Void) {
+    public func fetchCurrentWeather(forCity city: String, completion: @escaping (Result<CurrentWeather, Error>) -> Void) {
         getCoordinateFrom(city: city) { (coordinate, error) in
             guard let coordinate = coordinate
             else {
@@ -26,7 +28,7 @@ class NetworkWeatherManager: NetworkWeatherManagerProtocol {
             let urlString = "https://api.openweathermap.org/data/2.5/weather?lat=\(coordinate.latitude)&lon=\(coordinate.longitude)&appid=\(apiKey)&units=metric&lang=ru"
             guard let url = URL(string: urlString)
             else {
-                completion(.failure(NetworkWeatherManagerError.badRequest))
+                completion(.failure(NetworkError.badRequest))
                 return
                 
             }
@@ -39,12 +41,12 @@ class NetworkWeatherManager: NetworkWeatherManagerProtocol {
                         completion(.failure(error))
                     case .success(let currentWeatherData):
                         guard let currentWeatherData = currentWeatherData else {
-                            completion(.failure(NetworkWeatherManagerError.internalError))
+                            completion(.failure(NetworkError.internalError))
                             return
                         }
                         guard let currentWeather = CurrentWeather(currentWeatherData: currentWeatherData)
                         else {
-                            completion(.failure(NetworkWeatherManagerError.internalError))
+                            completion(.failure(NetworkError.internalError))
                             return
                         }
                         completion(.success(currentWeather))
@@ -52,7 +54,7 @@ class NetworkWeatherManager: NetworkWeatherManagerProtocol {
                         print(currentWeather.temperature)
                     }
                 } else {
-                    completion(.failure(NetworkWeatherManagerError.invalidInput))
+                    completion(.failure(NetworkError.invalidInput))
                 }
             }
             task.resume()
@@ -65,7 +67,7 @@ class NetworkWeatherManager: NetworkWeatherManagerProtocol {
             let currentWeatherData = try decoder.decode(CurrentWeatherData.self, from: data)
             return .success(currentWeatherData)
         } catch {
-            return .failure(NetworkWeatherManagerError.internalError)
+            return .failure(NetworkError.internalError)
         }
     }
     
@@ -75,23 +77,4 @@ class NetworkWeatherManager: NetworkWeatherManagerProtocol {
         }
     }
 }
-//MARK: - Extensions
-//Error handling
-extension NetworkWeatherManager {
-    enum NetworkWeatherManagerError: Error, LocalizedError {
-        case badRequest
-        case internalError
-        case invalidInput
-        
-        var errorDescription: String? {
-            switch self {
-            case .badRequest:
-                return NSLocalizedString("Проверьте Ваше интернет-соединение", comment: "Poor connection")
-            case .internalError:
-                return NSLocalizedString("Приложение сломано :(", comment: "My error")
-            case .invalidInput:
-                return NSLocalizedString("Сервер не нашел информации по данной локации", comment: "API's problem")
-            }
-        }
-    }
-}
+

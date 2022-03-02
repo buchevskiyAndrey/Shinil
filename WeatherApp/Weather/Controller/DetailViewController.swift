@@ -44,6 +44,20 @@ class DetailViewController: UIViewController {
         pressureLabel.text = pressure
         windSpeedLabel.text = windSpeed
     }
+    
+//MARK: - Public methods
+    func configure(with currentWeather: CurrentWeather) {
+        cityName = currentWeather.cityName
+        visibility  = currentWeather.visibilityString
+        systemIconName = currentWeather.systemIconNameString
+        weatherDiscription = currentWeather.weatherDescription
+        temperature = currentWeather.temperatureString
+        feelsLike = currentWeather.feelsLiketempString
+        minTemp = currentWeather.tempMinString
+        maxTemp = currentWeather.tempMaxString
+        pressure = currentWeather.pressureLabel
+        windSpeed = currentWeather.windSpeedString
+    }
 }
 
 
