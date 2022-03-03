@@ -9,17 +9,14 @@ import UIKit
 
 class ListTableViewController: UITableViewController {
 //MARK: - Private properties
-//    private var currentWeatherManager: NetworkWeatherManagerProtocol!
     private var currentWeather: [CurrentWeather]!
-
+    
+//MARK: - View lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = "Погода"
-//        currentWeatherManager = NetworkWeatherManager()
         currentWeather = []
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
-        
-//        currentWeatherManager.fetchCurrentWeather(forCity: "London")
     }
 
     //MARK: - Table view data source
@@ -47,12 +44,12 @@ class ListTableViewController: UITableViewController {
     @objc func addButtonTapped() {
         self.presentSearchAlertConroller(withTitle: "Введите город", message: nil, style: .alert) { [weak self] city in
             guard let self = self else {return}
-            NetworkService.shared.fetchCurrentWeather(forCity: city) { [unowned self ] result in
+            CurrentWeatherNetworkService.getCurrentWeather(city: city) { [weak self] result in
+                guard let self = self else { return }
                 DispatchQueue.main.async {
                     switch result {
                     case .failure(let error):
-                        self.presentErrorAlertConroller(withTitle: "Something goes wrong", message:"\(error.localizedDescription)", style: .alert)
-                        //МБ здесь создавать объект каррентвезер
+                        self.presentErrorAlertConroller(withTitle: "Something goes wrong", message: "\(error.localizedDescription)", style: .alert)
                     case .success(let currentWeather):
                         self.currentWeather.append(currentWeather)
                         self.tableView.reloadData()
