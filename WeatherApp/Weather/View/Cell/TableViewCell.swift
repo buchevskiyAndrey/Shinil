@@ -12,7 +12,9 @@ class TableViewCell: UITableViewCell {
     @IBOutlet weak var weatherLabel: UILabel!
     @IBOutlet weak var temperatureLabel: UILabel!
     
-   
-    
-
+    func configure(with currentWeather: CurrentWeather) {
+        cityLabel.text = currentWeather.cityName
+        weatherLabel.text = currentWeather.weatherDescription
+        temperatureLabel.text = currentWeather.temperatureString
+    }
 }
